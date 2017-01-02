@@ -28,7 +28,11 @@ Connection: close
 
 ***{"name": "John", "surname": "Smith"}***
 ```
-Using this template PyJFAPI will fuzz **{"name": "John", "surname": "Smith"}**!
+Using this template PyJFAPI will fuzz **{"name": "John", "surname": "Smith"}** command line would be something similar
+
+```
+python pjfapi.py -H example.com -P 443 -T request.txt --ssl
+```
 
 > Remember when you need to fuzz over ssl , you need to specify **--ssl** flag too, this is not implicit when using port 443!
 
