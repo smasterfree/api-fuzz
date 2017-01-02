@@ -10,7 +10,6 @@ please leave a comment on GitHub!
 MIT License
 
 Copyright (c) 2017 Daniele Linguaglossa
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -178,7 +177,7 @@ def make_request(ip, port, data, secure=False, debug=False):
     except ssl.CertificateError:
         raise Exception("SSL certificate error exiting :(")
     #  we got a socket error maybe due to timeout or connection reset by peer, we should slow down or quit
-    except socket.error as e:
+    except socket.error:
         return None, 0.1
     #  generic exception let's print the message
     except Exception as e:
@@ -345,37 +344,38 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=N
             while not fuzzer_queue.empty():
                 #  get the element to fuzz
                 fuzzed = fuzzer_queue.get()
-                result = (0,0)
+                result = [None, 0, 0, None]
                 #  perform the request until we got a result
                 while result[1] == 0:
                     #  make the actual request and return the stats for the fuzzed request
                     result = basic_info(ip, port, HTTPRequestParser(clean_template(data, fuzzed)), secure)
-                    #  maybe we are going to fast?
-                    if None in result:
-                        #  slow down!
-                        time.sleep(2)
+                    # we really got a result? :D
+                    if result[1] > 0:
+                        break
                     else:
-                        #  lock the global stats
-                        global_thread_lock.acquire()
-                        #  check against stats
-                        if is_interesting(result, stats, fuzzed):
-                            #  we got something interesting update global stats
-                            merge_stats(result, stats)
-                            #  we got something interesting let's notify parent process
-                            process_queue.put("Got something interesting!\n\n"
+                        #  maybe we are going to fast?
+                        time.sleep(2)
+                #process_queue.put(result)
+                #  lock the global stats
+                global_thread_lock.acquire()
+                #  check against stats
+                if is_interesting(result, stats, fuzzed):
+                    #  we got something interesting update global stats
+                    merge_stats(result, stats)
+                    #  we got something interesting let's notify parent process
+                    process_queue.put("Got something interesting!\n\n"
                                               "     Payload: {0}\n"
                                               "     HTTP Code: {1}\n"
                                               "     Execution time: {2}\n"
                                               "     Response Length: {3}\n"
                                               "     Response Hash: {4}\n".format(fuzzed, result[0],
                                               result[1], result[2], result[3]))
-                        # unlock the global stats
-                        global_thread_lock.release()
-                    #  sleep to prevent high CPU usage
-                    time.sleep(0.1)
+                # unlock the global stats
+                global_thread_lock.release()
                 #  skip to the next element
                 fuzzer_queue.task_done()
-            time.sleep(0.1)
+                #  sleep to prevent high CPU usage
+                time.sleep(1)
 
     for _ in range(0, max_threads):
         #  start <max_threads> thread which perform the fuzzing job
@@ -405,7 +405,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=N
     exit(0)
 
 
-def start_processes(ip, port, data, secure, process_queue, stats, process_num=1, threads_per_process=10, strong_fuzz=False):
+def start_processes(ip, port, data, secure, process_queue, stats, process_num=5, threads_per_process=10, strong_fuzz=False):
     #  declare a process pool
     process_pool = []
     #  init a process manager used to share stats between process in order to avoid same results multiple times
@@ -433,7 +433,7 @@ def bye():
     #  give enough time to print last messages
     time.sleep(1)
 
-def main(ip, port, data, secure=False, process_num=1, threads_per_process=10, strong_fuzz=False):
+def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
     """
     Main routine do the hard job
     """
