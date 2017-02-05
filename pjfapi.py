@@ -31,8 +31,13 @@ SOFTWARE.
 """
 
 from BaseHTTPServer import BaseHTTPRequestHandler
-from pyjfuzz.lib import PJFConfiguration
-from pyjfuzz.lib import PJFFactory
+try:
+    from pyjfuzz.lib import PJFConfiguration
+    from pyjfuzz.lib import PJFFactory
+except ImportError:
+    print "[!] Can't find PyJFuzz API library, please install with: 'git clone https://github.com/mseclab/PyJFuzz.git'"
+    print "[!] One done install with: 'sudo python setup.py install'"
+    exit(-1)
 from argparse import Namespace
 from StringIO import StringIO
 from threading import Thread
@@ -433,7 +438,8 @@ def bye():
     #  give enough time to print last messages
     time.sleep(1)
 
-def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+#def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+def main(config):
     """
     Main routine do the hard job
     """
@@ -442,18 +448,18 @@ def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, s
     print_queue.put("Starting PyJFAPI...")
     #  test the injection template for errors
     try:
-        check_template(data)
+        check_template(config.data)
     except Exception as e:
         print_queue.put("Template error: {0}".format(e))
         return bye()
     #  notify the user about injection point
-    print_queue.put("Injection point found: {0}".format(check_template(data)[0]))
+    print_queue.put("Injection point found: {0}".format(check_template(config.data)[0]))
     #  calculate initial request statistics
     try:
         #  parse the request without injection marker
-        parsed = HTTPRequestParser(clean_template(data, check_template(data)[0]))
+        parsed = HTTPRequestParser(clean_template(config.data, check_template(config.data)[0]))
         #  perform 10 requests and calculate average statistics
-        statistics = calculate_average_statistics(ip, port, parsed, secure)
+        statistics = calculate_average_statistics(config.host, config.port, parsed, config.secure)
         #  if we don't have stats, quit (check hashes)!
         if None in statistics[3]:
             print_queue.put("Unable to retrieve stats :(")
@@ -470,8 +476,8 @@ def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, s
     #  let's notify the user that we are starting the real fuzzing now!
     print_queue.put("Start fuzzing in a few seconds...")
     #  start processes and return a process pool
-    process_pool = start_processes(ip, port, data, secure, process_queue, statistics,
-                                   process_num, threads_per_process, strong_fuzz)
+    process_pool = start_processes(config.host, config.port, config.data, config.secure, process_queue, statistics,
+                                   config.process_num, config.thread_num, config.strong_fuzz)
     while True:
         try:
             while not process_queue.empty():
@@ -525,5 +531,5 @@ if __name__ == "__main__":
     parser.add_argument('--ssl', default=False, help="Use ssl handshake just for https requests", action="store_true",
                         dest="secure")
     args = parser.parse_args()
-    main(args.host, args.port,fix_request(args.template), process_num=args.process_num,
-         threads_per_process=args.thread_num, strong_fuzz=args.strong_fuzz,secure=args.secure)
+    setattr(args, "data", fix_request(args.template))
+    main(args)
