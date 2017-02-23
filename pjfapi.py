@@ -157,7 +157,8 @@ def make_request(ip, port, data, secure=False, debug=False):
                 #  otherwise use just https protocol
                 url = "https://{0}{1}".format(data.headers["Host"], data.path)
             #  connect to the host
-            connection = httplib.HTTPSConnection(ip, port, timeout=10)
+            #  Disable certificate checking with ssl
+            connection = httplib.HTTPSConnection(ip, port, timeout=10, context=ssl._create_unverified_context())
         else:
             #  if we are over http but we don't have a standard port let's put it inside url
             if port != 80:
