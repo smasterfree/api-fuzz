@@ -577,9 +577,9 @@ def parse_paras():
                         metavar="REQUEST TEMPLATE",
                         help="Request template used for fuzzing", required=True,
                         dest="template")
-    parser.add_argument('--s', default=False, help="Use strong fuzzing",
+    parser.add_argument('--s', default=True, help="Use strong fuzzing",
                         action="store_true", dest="strong_fuzz")
-    parser.add_argument('--p', type=int, default=1, metavar="PROCESS NUMBER",
+    parser.add_argument('--p', type=int, default=5, metavar="PROCESS NUMBER",
                         help="Number of process to start",
                         dest="process_num")
     parser.add_argument('--t', type=int, default=10, metavar="THREAD NUMBER",
