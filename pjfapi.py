@@ -31,6 +31,7 @@ SOFTWARE.
 """
 
 from BaseHTTPServer import BaseHTTPRequestHandler
+
 try:
     from pyjfuzz.lib import PJFConfiguration
     from pyjfuzz.lib import PJFFactory
@@ -59,6 +60,7 @@ import re
 
 print_queue = Queue.Queue(0)
 
+
 def printer_thread():
     """
     Thread used to prevent race condition over console while printing, it uses a message Queue
@@ -73,11 +75,12 @@ def printer_thread():
                 sys.stdout.write("[INFO] {0}\n".format(element))
                 #  task done! get the next
                 print_queue.task_done()
-            #  prevent high CPU usage
+            # prevent high CPU usage
             time.sleep(0.1)
         except KeyboardInterrupt:
             #  handle ctrl+c to prevent infinite process loop
             break
+
 
 def init_printer():
     """
@@ -87,6 +90,7 @@ def init_printer():
     #  set daemon so process end when printer thread is killed
     pthread.setDaemon(True)
     pthread.start()
+
 
 class HTTPRequestParser(BaseHTTPRequestHandler):
     def __init__(self, request_text):
@@ -111,10 +115,10 @@ class HTTPRequestParser(BaseHTTPRequestHandler):
             self.headers["Connection"] = "close"
         else:
             self.headers.update({"Connection": "close"})
-        #  delete the content-length header since it will be updated by httplib during requests
+        # delete the content-length header since it will be updated by httplib during requests
         if "Content-Length" in self.headers:
             del self.headers["Content-Length"]
-        #  wfile will contains just the message body (POST)
+        # wfile will contains just the message body (POST)
         self.wfile = StringIO(request_text.split("\r\n\r\n", 1)[1])
         self._body = self.wfile.read()
 
@@ -143,6 +147,7 @@ class HTTPRequestParser(BaseHTTPRequestHandler):
         buf += self.getbody()
         return buf
 
+
 def make_request(ip, port, data, secure=False, debug=False):
     """
     Perform the actual request
@@ -152,43 +157,48 @@ def make_request(ip, port, data, secure=False, debug=False):
         if secure:
             #  if we are over ssl but we don't have a standard port let's put it inside url
             if port != 443:
-                url = "https://{0}:{1}{2}".format(data.headers["Host"], port, data.path)
+                url = "https://{0}:{1}{2}".format(data.headers["Host"], port,
+                                                  data.path)
             else:
                 #  otherwise use just https protocol
                 url = "https://{0}{1}".format(data.headers["Host"], data.path)
-            #  connect to the host
+            # connect to the host
             #  Disable certificate checking with ssl
-            connection = httplib.HTTPSConnection(ip, port, timeout=10, context=ssl._create_unverified_context())
+            connection = httplib.HTTPSConnection(ip, port, timeout=10,
+                                                 context=ssl._create_unverified_context())
         else:
             #  if we are over http but we don't have a standard port let's put it inside url
             if port != 80:
-                url = "http://{0}:{1}{2}".format(data.headers["Host"], port, data.path)
+                url = "http://{0}:{1}{2}".format(data.headers["Host"], port,
+                                                 data.path)
             else:
                 #  otherwise use http procolo
                 url = "http://{0}{1}".format(data.headers["Host"], data.path)
-            #  connect to the host
+            # connect to the host
             connection = httplib.HTTPConnection(ip, port, timeout=10)
-        #  init the timer in order to get execution time
+        # init the timer in order to get execution time
         start_time = time.time()
         #  get the full response
         d = data.getbody()
         if data.command == "GET":
             connection.request(data.command, url, headers=data.headers)
         else:
+            # print d
             connection.request(data.command, url, d, data.headers)
-        #  get the execution time aka response time
+        # get the execution time aka response time
         exec_time = time.time() - start_time
         response = connection.getresponse()
-    #  we got an ssl error maybe hello over http port? or port closed
+    # we got an ssl error maybe hello over http port? or port closed
     except ssl.CertificateError:
         raise Exception("SSL certificate error exiting :(")
-    #  we got a socket error maybe due to timeout or connection reset by peer, we should slow down or quit
+    # we got a socket error maybe due to timeout or connection reset by peer, we should slow down or quit
     except socket.error:
         return None, 0.1
-    #  generic exception let's print the message
+    # generic exception let's print the message
     except Exception as e:
         raise Exception("Generic error: {0}".format(e.message))
     return response, exec_time
+
 
 def basic_info(ip, port, data, secure=False):
     """
@@ -209,6 +219,7 @@ def basic_info(ip, port, data, secure=False):
     else:
         return [None, 0.0, 0, None]
 
+
 def calculate_average_statistics(ip, port, data, secure=False):
     """
     Calculate average stats
@@ -220,24 +231,25 @@ def calculate_average_statistics(ip, port, data, secure=False):
     hash = []
     for _ in range(0, 5):
         #  for each request save http code, response time, body length, body hash
-        c,e,l,h = basic_info(ip, port, data, secure)
+        c, e, l, h = basic_info(ip, port, data, secure)
         http_code.append(c)
         exec_time.append(e)
         length.append(l)
         hash.append(h)
         #  sleep to prevent possible API rate limit
         time.sleep(1.5)
-    #  perform the average calculation
+    # perform the average calculation
     avghttpcode = ["{0}".format(x) for x in list(set(http_code))]
-    avgtime = round(sum(map(float, exec_time))/10, 4)
-    avglength = sum(map(int, length))/10
+    avgtime = round(sum(map(float, exec_time)) / 10, 4)
+    avglength = sum(map(int, length)) / 10
     avghash = [x for x in list(set(hash))]
     #  print the results
     print_queue.put("Average statistics:\n\n"
                     "   HTTP Code: {0}\n"
                     "   Time: {1}\n"
                     "   Length: {2}\n"
-                    "   Hash: {3}\n".format(avghttpcode, avgtime, avglength, avghash))
+                    "   Hash: {3}\n".format(avghttpcode, avgtime, avglength,
+                                            avghash))
     #  return the average stats
     return [avghttpcode, avgtime, avglength, avghash]
 
@@ -277,12 +289,14 @@ def check_template(data):
                 if type(j) not in [dict, list]:
                     raise Exception("Invalid injection point value (not JSON)!")
                 return matches[0], True
-        #  if we got multiple match notify user
+        # if we got multiple match notify user
         elif len(matches) > 1:
-            raise Exception("Got multiple injection point on template, please fix")
-    #  else we miss injection point
+            raise Exception(
+                "Got multiple injection point on template, please fix")
+    # else we miss injection point
     else:
         raise Exception("Missing injection point on template, please fix")
+
 
 def merge_stats(stats, global_stats):
     """
@@ -291,13 +305,14 @@ def merge_stats(stats, global_stats):
     #  add the status code to the know-list
     if str(stats[0]) not in global_stats[0]:
         global_stats[0] = global_stats[0] + [str(stats[0])]
-    #  calculate the avg between response time
+    # calculate the avg between response time
     global_stats[1] = (global_stats[1] + stats[1]) / 2
     #  calculate the avg between response length
     global_stats[2] = (global_stats[2] + stats[2]) / 2
     #  add the hash to the know-list
     if stats[3] not in global_stats[3]:
         global_stats[3] = global_stats[3] + [stats[3]]
+
 
 def is_interesting(stats, global_stats, payload, min_difference=2):
     """
@@ -314,24 +329,26 @@ def is_interesting(stats, global_stats, payload, min_difference=2):
         diff_exec_time = (exec_time - global_stats[1]) * -1
     else:
         diff_exec_time = exec_time - global_stats[1]
-    #  there is a difference of 5 or more secs between their response time?
+    # there is a difference of 5 or more secs between their response time?
     if diff_exec_time <= 5:
         difference_counter += 1
     if response_length - global_stats[2] < 0:
         difference_response_length = (response_length - global_stats[2]) * -1
     else:
         difference_response_length = (response_length - global_stats[2])
-    #  there's something difference between their response content and length?
+    # there's something difference between their response content and length?
     if difference_response_length >= len(payload):
         if response_hash not in global_stats[3]:
             difference_counter += 2
-    #  we got more than 2 difference?
+    # we got more than 2 difference?
     if difference_counter >= min_difference:
         return True
     else:
         return False
 
-def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=None, stats=None, s_fuzz=False):
+
+def fuzzer_process(ip, port, data, secure=False, max_threads=10,
+                   process_queue=None, stats=None, s_fuzz=False):
     """
     Represent a fuzzer process it starts some threads which do the actual job
     """
@@ -354,14 +371,16 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=N
                 #  perform the request until we got a result
                 while result[1] == 0:
                     #  make the actual request and return the stats for the fuzzed request
-                    result = basic_info(ip, port, HTTPRequestParser(clean_template(data, fuzzed)), secure)
+                    result = basic_info(ip, port, HTTPRequestParser(
+                        clean_template(data, fuzzed)), secure)
                     # we really got a result? :D
                     if result[1] > 0:
+                        print result  # add by hzx
                         break
                     else:
                         #  maybe we are going to fast?
                         time.sleep(2)
-                #process_queue.put(result)
+                # process_queue.put(result)
                 #  lock the global stats
                 global_thread_lock.acquire()
                 #  check against stats
@@ -370,12 +389,13 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=N
                     merge_stats(result, stats)
                     #  we got something interesting let's notify parent process
                     process_queue.put("Got something interesting!\n\n"
-                                              "     Payload: {0}\n"
-                                              "     HTTP Code: {1}\n"
-                                              "     Execution time: {2}\n"
-                                              "     Response Length: {3}\n"
-                                              "     Response Hash: {4}\n".format(fuzzed, result[0],
-                                              result[1], result[2], result[3]))
+                                      "     Payload: {0}\n"
+                                      "     HTTP Code: {1}\n"
+                                      "     Execution time: {2}\n"
+                                      "     Response Length: {3}\n"
+                                      "     Response Hash: {4}\n"
+                                      .format(fuzzed, result[0], result[1],
+                                              result[2], result[3]))
                 # unlock the global stats
                 global_thread_lock.release()
                 #  skip to the next element
@@ -385,11 +405,13 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=N
 
     for _ in range(0, max_threads):
         #  start <max_threads> thread which perform the fuzzing job
-        threads.append(Thread(target=fuzzer_thread, args=(ip, port, data, secure, stats)))
+        threads.append(
+            Thread(target=fuzzer_thread, args=(ip, port, data, secure, stats)))
         threads[-1].start()
-    #  init PyJFuzz configuration (see documentation)
+    # init PyJFuzz configuration (see documentation)
     config = PJFConfiguration(Namespace(
-        json=json.loads(urllib.unquote(org_payload)) if encoded else json.loads(org_payload),
+        json=json.loads(urllib.unquote(org_payload)) if encoded else json.loads(
+            org_payload),
         level=6,
         strong_fuzz=s_fuzz,
         nologo=True,
@@ -411,80 +433,93 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10, process_queue=N
     exit(0)
 
 
-def start_processes(ip, port, data, secure, process_queue, stats, process_num=5, threads_per_process=10, strong_fuzz=False):
+def start_processes(ip, port, data, secure, process_queue, stats, process_num=5,
+                    threads_per_process=10, strong_fuzz=False):
     #  declare a process pool
     process_pool = []
     #  init a process manager used to share stats between process in order to avoid same results multiple times
     manager_stats = multiprocessing.Manager().list()
     for item in stats:
         manager_stats.append(item)
-    #  create <process_num> processes
-    for _ in range(1, process_num+1):
+    # create <process_num> processes
+    for _ in range(1, process_num + 1):
         process_pool.append(multiprocessing.Process(target=fuzzer_process,
-                                args=(ip,
-                                      port,
-                                      data,
-                                      secure,
-                                      threads_per_process,
-                                      process_queue,
-                                      manager_stats,
-                                      strong_fuzz)))
+                                                    args=(ip,
+                                                          port,
+                                                          data,
+                                                          secure,
+                                                          threads_per_process,
+                                                          process_queue,
+                                                          manager_stats,
+                                                          strong_fuzz)))
         #  start the created process
         process_pool[-1].start()
         print_queue.put("Process {0} started!".format(_))
-    #  return the process pool
+    # return the process pool
     return process_pool
+
 
 def bye():
     #  give enough time to print last messages
     time.sleep(1)
 
-#def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+
+# def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
 def main(config):
     """
     Main routine do the hard job
     """
+
     #  init the printer thread
     init_printer()
     print_queue.put("Starting PyJFAPI...")
+
     #  test the injection template for errors
     try:
         check_template(config.data)
     except Exception as e:
         print_queue.put("Template error: {0}".format(e))
         return bye()
-    #  notify the user about injection point
-    print_queue.put("Injection point found: {0}".format(check_template(config.data)[0]))
+
+    # notify the user about injection point
+    print_queue.put(
+        "Injection point found: {0}".format(check_template(config.data)[0]))
     #  calculate initial request statistics
     try:
         #  parse the request without injection marker
-        parsed = HTTPRequestParser(clean_template(config.data, check_template(config.data)[0]))
+        parsed = HTTPRequestParser(
+            clean_template(config.data, check_template(config.data)[0]))
         #  perform 10 requests and calculate average statistics
-        statistics = calculate_average_statistics(config.host, config.port, parsed, config.secure)
+        statistics = calculate_average_statistics(config.host, config.port,
+                                                  parsed, config.secure)
         #  if we don't have stats, quit (check hashes)!
         if None in statistics[3]:
             print_queue.put("Unable to retrieve stats :(")
             return bye()
-    #  ooops something wrong happened let's notify the user
+    # ooops something wrong happened let's notify the user
     except Exception as e:
         print_queue.put(e)
         return bye()
-    #  we got ctrl+c so let's quit :( you should really use this script
+    # we got ctrl+c so let's quit :( you should really use this script
     except KeyboardInterrupt:
         return
-    #  create a Queue used to communicate results between created processes and main process
+
+    # create a Queue used to communicate results between created processes and main process
     process_queue = multiprocessing.Queue(0)
+
     #  let's notify the user that we are starting the real fuzzing now!
     print_queue.put("Start fuzzing in a few seconds...")
     #  start processes and return a process pool
-    process_pool = start_processes(config.host, config.port, config.data, config.secure, process_queue, statistics,
-                                   config.process_num, config.thread_num, config.strong_fuzz)
+    process_pool = start_processes(config.host, config.port, config.data,
+                                   config.secure, process_queue, statistics,
+                                   config.process_num, config.thread_num,
+                                   config.strong_fuzz)
     while True:
         try:
             while not process_queue.empty():
-            #  if queue is not empty we have some results from a process let's print it by adding it to print_queue
+                #  if queue is not empty we have some results from a process let's print it by adding it to print_queue
                 print_queue.put(process_queue.get())
-            #  sleep to prevent high CPU usage
+                #  sleep to prevent high CPU usage
                 time.sleep(0.1)
         except KeyboardInterrupt:
             #  we got ctrl+c so let's kill al processes
@@ -492,9 +527,10 @@ def main(config):
             for process in process_pool:
                 #  Send sigkill to each process
                 os.kill(process.pid, signal.SIGKILL)
-            #  exit the loop
+            # exit the loop
             break
     return bye()
+
 
 def fix_request(req):
     """
@@ -504,7 +540,8 @@ def fix_request(req):
     if "\r\n" not in req:
         # let's replace \n with \r\n should fix the issue anyway it's not really strong
         req = req.replace("\n", "\r\n")
-    return  req
+    return req
+
 
 def check_template_path(path):
     """
@@ -520,17 +557,27 @@ def check_template_path(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-H', type=str, metavar="HOST", help="The hostname", required=True, dest="host")
-    parser.add_argument('-P', type=int, metavar="PORT", help="Connection port", required=True, dest="port")
-    parser.add_argument('-T', type=check_template_path, metavar="REQUEST TEMPLATE",
-                        help="Request template used for fuzzing", required=True, dest="template")
-    parser.add_argument('--s', default=False, help="Use strong fuzzing", action="store_true", dest="strong_fuzz")
-    parser.add_argument('--p', type=int, default=1, metavar="PROCESS NUMBER", help="Number of process to start",
+    parser.add_argument('-H', type=str, metavar="HOST", help="The hostname",
+                        required=True, dest="host")
+    parser.add_argument('-P', type=int, metavar="PORT", help="Connection port",
+                        required=True, dest="port")
+    parser.add_argument('-T', type=check_template_path,
+                        metavar="REQUEST TEMPLATE",
+                        help="Request template used for fuzzing", required=True,
+                        dest="template")
+    parser.add_argument('--s', default=False, help="Use strong fuzzing",
+                        action="store_true", dest="strong_fuzz")
+    parser.add_argument('--p', type=int, default=1, metavar="PROCESS NUMBER",
+                        help="Number of process to start",
                         dest="process_num")
-    parser.add_argument('--t', type=int, default=10, metavar="THREAD NUMBER", help="Number of thread for each process",
+    parser.add_argument('--t', type=int, default=10, metavar="THREAD NUMBER",
+                        help="Number of thread for each process",
                         dest="thread_num")
-    parser.add_argument('--ssl', default=False, help="Use ssl handshake just for https requests", action="store_true",
+    parser.add_argument('--ssl', default=False,
+                        help="Use ssl handshake just for https requests",
+                        action="store_true",
                         dest="secure")
     args = parser.parse_args()
     setattr(args, "data", fix_request(args.template))
     main(args)
+
