@@ -58,6 +58,8 @@ import sys
 import os
 import re
 
+from my_logger import logger
+
 print_queue = Queue.Queue(0)
 
 
@@ -396,6 +398,15 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                                       "     Response Hash: {4}\n"
                                       .format(fuzzed, result[0], result[1],
                                               result[2], result[3]))
+                    logger.error("Got something interesting!\n\n"
+                                      "     Payload: {0}\n"
+                                      "     HTTP Code: {1}\n"
+                                      "     Execution time: {2}\n"
+                                      "     Response Length: {3}\n"
+                                      "     Response Hash: {4}\n"
+                                      " whole result : {5} \n"
+                                      .format(fuzzed, result[0], result[1],
+                                              result[2], result[3],result))
                 # unlock the global stats
                 global_thread_lock.release()
                 #  skip to the next element
