@@ -217,9 +217,9 @@ def basic_info(ip, port, data, secure=False):
         #  get the response hash
         hash = hashlib.md5(r).hexdigest()
         #  return basic info (http code, response time, length, response hash)
-        return [http_code, exec_time, length, hash, r]
+        return [http_code, exec_time, length, hash]
     else:
-        return [None, 0.0, 0, None, None]
+        return [None, 0.0, 0, None]
 
 
 def calculate_average_statistics(ip, port, data, secure=False):
@@ -233,7 +233,7 @@ def calculate_average_statistics(ip, port, data, secure=False):
     hash = []
     for _ in range(0, 5):
         #  for each request save http code, response time, body length, body hash
-        c, e, l, h, _ = basic_info(ip, port, data, secure)
+        c, e, l, h = basic_info(ip, port, data, secure)
         http_code.append(c)
         exec_time.append(e)
         length.append(l)
@@ -377,6 +377,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                         clean_template(data, fuzzed)), secure)
                     # we really got a result? :D
                     if result[1] > 0:
+                        print result  # add by hzx
                         break
                     else:
                         #  maybe we are going to fast?
@@ -405,7 +406,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                                       "     Response Hash: {4}\n"
                                       " whole result : {5} \n"
                                       .format(fuzzed, result[0], result[1],
-                                              result[2], result[3], result[4]))
+                                              result[2], result[3],result))
                 # unlock the global stats
                 global_thread_lock.release()
                 #  skip to the next element

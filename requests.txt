@@ -1,8 +1,0 @@
- POST /v2.0/networks.json HTTP/1.1
- Host: pubbeta1-iaas.service.163.org
- X-Auth-Token: 6645b224a8314d0c89e09a011cbddf53
- Content-Type: application/json
- Accept: application/json
-
-
- ***{"network": {"cidr": "20.100.0.0/16", "name": "hzx-vpc-test1", "admin_state_up": true}}***
