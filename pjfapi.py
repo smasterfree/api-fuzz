@@ -386,7 +386,8 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                 #  lock the global stats
                 global_thread_lock.acquire()
                 #  check against stats
-                if is_interesting(result, stats, fuzzed):
+                # if is_interesting(result, stats, fuzzed):  #comment by hzx
+                if result[0] == 500:
                     #  we got something interesting update global stats
                     merge_stats(result, stats)
                     #  we got something interesting let's notify parent process
@@ -406,7 +407,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                                       "     Response Hash: {4}\n"
                                       " whole result : {5} \n"
                                       .format(fuzzed, result[0], result[1],
-                                              result[2], result[3],result))
+                                              result[2], result[3], result))
                 # unlock the global stats
                 global_thread_lock.release()
                 #  skip to the next element
@@ -566,7 +567,7 @@ def check_template_path(path):
         raise argparse.ArgumentTypeError("Invalid template path!")
 
 
-if __name__ == "__main__":
+def parse_paras():
     parser = argparse.ArgumentParser()
     parser.add_argument('-H', type=str, metavar="HOST", help="The hostname",
                         required=True, dest="host")
@@ -590,5 +591,10 @@ if __name__ == "__main__":
                         dest="secure")
     args = parser.parse_args()
     setattr(args, "data", fix_request(args.template))
+    return args
+
+
+if __name__ == "__main__":
+    args = parse_paras()
     main(args)
 
