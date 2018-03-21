@@ -1,8 +1,0 @@
-POST /vpc/v1/subnet/create HTTP/1.1                                                                                                    
-Host: 10.185.3.248
-Content-Type: application/json
-Accept: application/json
-X-Tenant-Id: 63cd892898f7464db6cbfa385f0b6dce
-
-
-***{"cidr":"10.177.0.0/24","name":"name-subnetv9hs","networkId":"07d9b29d-d206-46f7-9c0a-3aa0ebbd8fda","azCode":"cn-east-1b","routeTableId":"b04fe6bb-b06c-47be-9a2b-665bc879bd4d"}***

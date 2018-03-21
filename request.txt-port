@@ -1,7 +1,0 @@
-POST /v2.0/ports.json HTTP/1.1
-Host: pubbeta1-iaas.service.163.org
-X-Auth-Token: 59327ad4d32f416cb16cc742875bb527
-Content-Type: application/json
-Accept: application/json
-
-***{"port": {"network_id": "ac4a1893-155c-49f8-ba32-dee3d3be0edc", "egress_prefer_rate": 100, "ingress_max_rate": 100, "egress_max_rate": 100, "admin_state_up": true}}***
