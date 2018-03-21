@@ -1,0 +1,8 @@
+POST /v2.0/security-group-rules.json   HTTP/1.1
+Host: pubbeta1-iaas.service.163.org
+X-Auth-Token: 6645b224a8314d0c89e09a011cbddf53
+Content-Type: application/json
+Accept: application/json
+
+
+***{"security_group_rule": {"direction": "ingress", "protocol": "tcp", "ethertype": "IPv4", "port_range_max": "6660", "security_group_id": "48b9cc1e-53f8-4f7e-8983-bffb209153f3", "port_range_min": "80", "remote_ip_prefix": "0.0.0.0/0"}}***

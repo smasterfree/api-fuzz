@@ -1,0 +1,7 @@
+POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1
+Host: 10.187.3.190
+X-Auth-Token: 1e14021736284c5f8e35c56b65d6df51
+Content-Type: application/json
+Accept: application/json
+
+***{ "flavor_id":"154", "az_list":["yiqiao1.pub2"], "vm_type":"KVM" ,"net_type":"neutron"}***
