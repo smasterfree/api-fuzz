@@ -400,14 +400,14 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                                       .format(fuzzed, result[0], result[1],
                                               result[2], result[3]))
                     logger.error("Got something interesting!\n\n"
-                                      "     Payload: {0}\n"
-                                      "     HTTP Code: {1}\n"
-                                      "     Execution time: {2}\n"
-                                      "     Response Length: {3}\n"
-                                      "     Response Hash: {4}\n"
-                                      " whole result : {5} \n"
-                                      .format(fuzzed, result[0], result[1],
-                                              result[2], result[3], result))
+                                 "     Payload: {0}\n"
+                                 "     HTTP Code: {1}\n"
+                                 "     Execution time: {2}\n"
+                                 "     Response Length: {3}\n"
+                                 "     Response Hash: {4}\n"
+                                 " whole result : {5} \n"
+                                 .format(fuzzed, result[0], result[1],
+                                         result[2], result[3], result))
                 # unlock the global stats
                 global_thread_lock.release()
                 #  skip to the next element
@@ -522,10 +522,18 @@ def main(config):
     #  let's notify the user that we are starting the real fuzzing now!
     print_queue.put("Start fuzzing in a few seconds...")
     #  start processes and return a process pool
+    print (config.host, config.port, config.data,
+           config.secure, process_queue, statistics,
+           config.process_num, config.thread_num,
+           config.strong_fuzz)
+
+    time.sleep(100)
+
     process_pool = start_processes(config.host, config.port, config.data,
                                    config.secure, process_queue, statistics,
                                    config.process_num, config.thread_num,
                                    config.strong_fuzz)
+
     while True:
         try:
             while not process_queue.empty():
@@ -594,7 +602,64 @@ def parse_paras():
     return args
 
 
-if __name__ == "__main__":
-    args = parse_paras()
-    main(args)
+# def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+def hzx_main():
+    """
+    Main routine do the hard job
+    """
 
+    #  init the printer thread
+    init_printer()
+    print_queue.put("Starting PyJFAPI...")
+
+    # notify the user about injection point
+
+
+    # create a Queue used to communicate results between created processes and main process
+    process_queue = multiprocessing.Queue(0)
+
+    #  let's notify the user that we are starting the real fuzzing now!
+    print_queue.put("Start fuzzing in a few seconds...")
+
+    conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
+ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
+    """
+
+    secure = False
+    statistics = [['200'], 0.0007, 12, ['2cd1738195b962cb0d8789bfa77b21a0']]
+
+    #  start processes and return a process pool
+    print ('10.187.3.190', 9800, conf_data,
+           secure, process_queue, statistics,
+           5, 10,
+           True)
+
+    time.sleep(1)
+
+    process_pool = start_processes('10.187.3.190', 9800, conf_data,
+           secure, process_queue, statistics,
+           5, 10,
+           True)
+
+    while True:
+        try:
+            while not process_queue.empty():
+                #  if queue is not empty we have some results from a process let's print it by adding it to print_queue
+                print_queue.put(process_queue.get())
+                #  sleep to prevent high CPU usage
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            #  we got ctrl+c so let's kill al processes
+            print_queue.put("Killing all processes, please wait...")
+            for process in process_pool:
+                #  Send sigkill to each process
+                os.kill(process.pid, signal.SIGKILL)
+            # exit the loop
+            break
+    return bye()
+
+
+if __name__ == "__main__":
+    # args = parse_paras()
+    # main(args)
+    hzx_main()
