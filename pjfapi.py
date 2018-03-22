@@ -625,10 +625,10 @@ def hzx_main():
     #  let's notify the user that we are starting the real fuzzing now!
     print_queue.put("Start fuzzing in a few seconds...")
 
-    conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
-ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
-    """
-    # conf_data = hzx_uncurl()
+    # conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
+# ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
+#     """
+    conf_data = hzx_uncurl()
 
     secure = False
     statistics = [['200'], 0.0007, 12, ['2cd1738195b962cb0d8789bfa77b21a0']]
@@ -675,7 +675,7 @@ def hzx_uncurl():
         """
          curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
            -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
-          -H  "X-Auth-Token: 1e14021736284c5f8e35c56b65d6df51" 
+          -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
           -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
         """)
 
@@ -687,25 +687,25 @@ def hzx_uncurl():
     url = urlparse(r_map["url"])
     # print url.port, url.hostname, url.path
 
-
     header_data =  r_map["headers_token"]
     header_data = string.replace(header_data, '"', '')
     header_data = string.replace(header_data, '{', '')
     header_data = string.replace(header_data, '}', '')
 
-    header_data = string.replace(header_data, ',', '\r\n')
+    header_data = string.replace(header_data, ', ', '\r\n')
     # print(header_data)
 
     data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n{header}\r\n\r\n***{inject_data}***'. \
-        format(method=r_map["method"],
+        format(method=str(r_map["method"]).upper(),
                path=url.path,
                host=url.hostname,
                header=header_data,
                inject_data=r_map["data_token"])
-    print  data_str
+    return  data_str
 
 
 if __name__ == "__main__":
     # args = parse_paras()
     # main(args)
-    hzx_uncurl()
+    # hzx_uncurl()
+    hzx_main()
