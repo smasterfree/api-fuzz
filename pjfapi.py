@@ -32,6 +32,8 @@ SOFTWARE.
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 
+import uncurl_lib
+
 try:
     from pyjfuzz.lib import PJFConfiguration
     from pyjfuzz.lib import PJFFactory
@@ -665,7 +667,19 @@ ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"
     return bye()
 
 
+def hzx_uncurl():
+    a, dict_1 = uncurl_lib.parse(
+        """
+         curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
+           -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
+          -H  "X-Auth-Token: 1e14021736284c5f8e35c56b65d6df51" 
+          -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
+        """)
+    print dict_1["url"]
+    print dict_1["data_token"]
+    print dict_1["headers_token"]
+
 if __name__ == "__main__":
     # args = parse_paras()
     # main(args)
-    hzx_main()
+    hzx_uncurl()
