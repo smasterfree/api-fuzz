@@ -50,6 +50,7 @@ import multiprocessing
 import argparse
 import httplib
 import hashlib
+import string
 import socket
 import signal
 import urllib
@@ -627,6 +628,7 @@ def hzx_main():
     conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
 ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
     """
+    # conf_data = hzx_uncurl()
 
     secure = False
     statistics = [['200'], 0.0007, 12, ['2cd1738195b962cb0d8789bfa77b21a0']]
@@ -685,16 +687,22 @@ def hzx_uncurl():
     url = urlparse(r_map["url"])
     # print url.port, url.hostname, url.path
 
-    conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
-    ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
-        """
-    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n{header}\r\n***{inject_data}***'. \
+
+    header_data =  r_map["headers_token"]
+    header_data = string.replace(header_data, '"', '')
+    header_data = string.replace(header_data, '{', '')
+    header_data = string.replace(header_data, '}', '')
+
+    header_data = string.replace(header_data, ',', '\r\n')
+    # print(header_data)
+
+    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n{header}\r\n\r\n***{inject_data}***'. \
         format(method=r_map["method"],
                path=url.path,
                host=url.hostname,
-               header=r_map["headers_token"],
+               header=header_data,
                inject_data=r_map["data_token"])
-    print data_str
+    print  data_str
 
 
 if __name__ == "__main__":
