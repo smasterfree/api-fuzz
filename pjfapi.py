@@ -629,17 +629,23 @@ ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"
     statistics = [['200'], 0.0007, 12, ['2cd1738195b962cb0d8789bfa77b21a0']]
 
     #  start processes and return a process pool
-    print ('10.187.3.190', 9800, conf_data,
+    host = '10.187.3.190'
+    port = 9800
+    process_number = 5
+    threads_per_process = 10
+    is_strong_fuzz = True
+
+    print (host, port, conf_data,
            secure, process_queue, statistics,
-           5, 10,
-           True)
+           process_number, threads_per_process,
+           is_strong_fuzz)
 
     time.sleep(1)
 
-    process_pool = start_processes('10.187.3.190', 9800, conf_data,
-           secure, process_queue, statistics,
-           5, 10,
-           True)
+    process_pool = start_processes(host, port, conf_data,
+                                   secure, process_queue, statistics,
+                                   process_number, threads_per_process,
+                                   is_strong_fuzz)
 
     while True:
         try:
