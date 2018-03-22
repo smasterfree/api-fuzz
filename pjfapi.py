@@ -626,8 +626,8 @@ def hzx_main():
     print_queue.put("Start fuzzing in a few seconds...")
 
     # conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
-# ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
-#     """
+    # ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
+    #     """
     conf_data = hzx_uncurl()
 
     secure = False
@@ -677,31 +677,26 @@ def hzx_uncurl():
            -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
           -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
           -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
-        """)
-
-    # print r_map["url"]
-    # print r_map["method"]
-    # print r_map["data_token"]
-    # print r_map["headers_token"]
-
+        """
+    )
     url = urlparse(r_map["url"])
-    # print url.port, url.hostname, url.path
 
-    header_data =  r_map["headers_token"]
+    header_data = r_map["headers_token"]
     header_data = string.replace(header_data, '"', '')
     header_data = string.replace(header_data, '{', '')
     header_data = string.replace(header_data, '}', '')
-
     header_data = string.replace(header_data, ', ', '\r\n')
-    # print(header_data)
 
-    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n{header}\r\n\r\n***{inject_data}***'. \
-        format(method=str(r_map["method"]).upper(),
-               path=url.path,
-               host=url.hostname,
-               header=header_data,
-               inject_data=r_map["data_token"])
-    return  data_str
+    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n' \
+               '{header}\r\n\r\n***{inject_data}***'. \
+                format(method=str(r_map["method"]).upper(),
+                       path=url.path,
+                       host=url.hostname,
+                       header=header_data,
+                       inject_data=r_map["data_token"])
+
+    print data_str
+    return data_str
 
 
 if __name__ == "__main__":
