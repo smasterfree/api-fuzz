@@ -53,7 +53,7 @@ def parse(curl_command):
         else:
             quoted_headers[header_key] = header_value.strip()
 
-    result = """requests.{method}("{url}",
+    result_string = """requests.{method}("{url}",
 {data_token}{headers_token},
 {cookies_token},{security_token}
 )""".format(
@@ -79,7 +79,7 @@ def parse(curl_command):
     result_dict[
         "security_token"] = "\n%sverify=False" % base_indent if parsed_args.insecure else ""
 
-    return result, result_dict
+    return result_string, result_dict
 
 
 def dict_to_pretty_string(the_dict, indent=4):

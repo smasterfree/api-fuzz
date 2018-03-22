@@ -33,6 +33,7 @@ SOFTWARE.
 from BaseHTTPServer import BaseHTTPRequestHandler
 
 import uncurl_lib
+from urlparse import urlparse
 
 try:
     from pyjfuzz.lib import PJFConfiguration
@@ -668,16 +669,33 @@ ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"
 
 
 def hzx_uncurl():
-    a, dict_1 = uncurl_lib.parse(
+    result_string, r_map = uncurl_lib.parse(
         """
          curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
            -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
           -H  "X-Auth-Token: 1e14021736284c5f8e35c56b65d6df51" 
           -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
         """)
-    print dict_1["url"]
-    print dict_1["data_token"]
-    print dict_1["headers_token"]
+
+    # print r_map["url"]
+    # print r_map["method"]
+    # print r_map["data_token"]
+    # print r_map["headers_token"]
+
+    url = urlparse(r_map["url"])
+    # print url.port, url.hostname, url.path
+
+    conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
+    ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
+        """
+    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n{header}\r\n***{inject_data}***'. \
+        format(method=r_map["method"],
+               path=url.path,
+               host=url.hostname,
+               header=r_map["headers_token"],
+               inject_data=r_map["data_token"])
+    print data_str
+
 
 if __name__ == "__main__":
     # args = parse_paras()
