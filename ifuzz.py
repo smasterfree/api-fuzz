@@ -637,6 +637,15 @@ def uncurl_url_link(url_link):
     return uncurl_url.hostname, uncurl_url.port, data_str
 
 
+def get_statistics(conf_data, host, port, secure):
+    parsed = HTTPRequestParser(
+        clean_template(conf_data, check_template(conf_data)[0]))
+    #  perform 10 requests and calculate average statistics
+    statistics = calculate_average_statistics(host, port,
+                                              parsed, secure)
+    return statistics
+
+
 def hzx_main(url_link):
     """
     Main routine do the hard job
@@ -698,24 +707,24 @@ def hzx_main(url_link):
     return bye()
 
 
-def get_statistics(conf_data, host, port, secure):
-    parsed = HTTPRequestParser(
-        clean_template(conf_data, check_template(conf_data)[0]))
-    #  perform 10 requests and calculate average statistics
-    statistics = calculate_average_statistics(host, port,
-                                              parsed, secure)
-    return statistics
+def hzx_argu_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("url", nargs='+',
+                        help="input url")
 
+    args = parser.parse_args()
+    return args
 
 if __name__ == "__main__":
-    # args = parse_paras()
+    args = hzx_argu_parser()
+    url = args.url
     # main(args)
-    url = """
-         curl  http://10.187.2.200:9797/v2.0/vips/33d85b32-c3f8-4488-b8ac-8aebea032430/backends.json 
-         -X POST -H "X-Auth-Token: aa36396857904092b2f1816b8006d24b" 
-         -H "Content-Type: application/json" -H "Accept: application/json"
-          -H "User-Agent: python-protonclient" 
-          -d '{"backend": {"port_id": "95a95519-ea84-4538-a8c3-d1ef4ad42d0c", "vip_id": "33d85b32-c3f8-4488-b8ac-8aebea032430", "weight": "200"}}'
-        """
+    # url = """
+    #      curl  http://10.187.2.200:9797/v2.0/vips/33d85b32-c3f8-4488-b8ac-8aebea032430/backends.json
+    #      -X POST -H "X-Auth-Token: aa36396857904092b2f1816b8006d24b"
+    #      -H "Content-Type: application/json" -H "Accept: application/json"
+    #       -H "User-Agent: python-protonclient"
+    #       -d '{"backend": {"port_id": "95a95519-ea84-4538-a8c3-d1ef4ad42d0c", "vip_id": "33d85b32-c3f8-4488-b8ac-8aebea032430", "weight": "200"}}'
+    #     """
     # uncurl_url_link(url)
     hzx_main(url)
