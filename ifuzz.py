@@ -616,24 +616,15 @@ def dump_json_header_to_string(header_data):
     return header_all
 
 
-# def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+def hzx_uncurl(url_link):
+    result_string, result_dict = uncurl_lib.parse(url_link)
 
-
-
-def hzx_uncurl():
-    result_string, result_dict = uncurl_lib.parse(
-        """
-         curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
-           -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
-          -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
-          -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
-        """
-    )
     uncurl_url = urlparse(result_dict["url"])
     uncurl_method = str(result_dict["method"]).upper()
     uncurl_data = result_dict["data_token"]
-
     uncurl_header_json = result_dict["headers_token"]
+    port = uncurl_url.port
+
     header = dump_json_header_to_string(uncurl_header_json)
 
     data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n' \
@@ -644,49 +635,50 @@ def hzx_uncurl():
                header=header,
                inject_data=uncurl_data)
 
-    return data_str
+    return uncurl_url.hostname, uncurl_url.port, data_str
 
 
-def hzx_main():
+def hzx_main(url_link):
     """
     Main routine do the hard job
     """
 
     #  init the printer thread
     init_printer()
-    print_queue.put("Starting PyJFAPI...")
+    print_queue.put("Starting iFuzz...")
 
-    # notify the user about injection point
-
-
-    # create a Queue used to communicate results between created processes and main process
+    # create a Queue used to communicate results
+    # between created processes and main process
     process_queue = multiprocessing.Queue(0)
 
     #  let's notify the user that we are starting the real fuzzing now!
     print_queue.put("Start fuzzing in a few seconds...")
 
-    # conf_data = """POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1\r\nHost: 10.187.3.190\r\nX-Auth-Token: 809692b16cc840878e276d8634d899da\r\nContent-Type: applic
-    # ation/json\r\nAccept: application/json\r\n\r\n***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***\r\n
-    #     """
-    conf_data = hzx_uncurl()
-
-    secure = False
-    statistics = []
-
-    #  start processes and return a process pool
-    host = '10.187.3.190'
-    port = 9800
+    # get metadata
+    host, port, conf_data = hzx_uncurl(url_link)
     process_number = 5
     threads_per_process = 10
     is_strong_fuzz = True
+    secure = False
 
-    print (host, port, conf_data,
-           secure, process_queue, statistics,
-           process_number, threads_per_process,
-           is_strong_fuzz)
+    #  calculate initial request statistics
+    try:
+        #  parse the request without injection marker
+        parsed = HTTPRequestParser(
+            clean_template(conf_data, check_template(conf_data)[0]))
+        #  perform 10 requests and calculate average statistics
+        statistics = calculate_average_statistics(host, port,
+                                                  parsed, secure)
+        #  if we don't have stats, quit (check hashes)!
+        if None in statistics[3]:
+            print_queue.put("Unable to retrieve stats :(")
+            return bye()
+    # ooops something wrong happened let's notify the user
+    except Exception as e:
+        print_queue.put(e)
+        return bye()
 
-    time.sleep(1)
-
+    # start processes and return a process pool
     process_pool = start_processes(host, port, conf_data,
                                    secure, process_queue, statistics,
                                    process_number, threads_per_process,
@@ -695,7 +687,8 @@ def hzx_main():
     while True:
         try:
             while not process_queue.empty():
-                #  if queue is not empty we have some results from a process let's print it by adding it to print_queue
+                #  if queue is not empty we have some results from a process
+                # let's print it by adding it to print_queue
                 print_queue.put(process_queue.get())
                 #  sleep to prevent high CPU usage
                 time.sleep(0.1)
@@ -713,5 +706,11 @@ def hzx_main():
 if __name__ == "__main__":
     # args = parse_paras()
     # main(args)
-    hzx_uncurl()
-    hzx_main()
+    url = """
+         curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
+           -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
+          -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
+          -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
+        """
+    # hzx_uncurl(url)
+    hzx_main(url)
