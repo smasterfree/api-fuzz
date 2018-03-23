@@ -616,14 +616,13 @@ def dump_json_header_to_string(header_data):
     return header_all
 
 
-def hzx_uncurl(url_link):
+def uncurl_url_link(url_link):
     result_string, result_dict = uncurl_lib.parse(url_link)
 
     uncurl_url = urlparse(result_dict["url"])
     uncurl_method = str(result_dict["method"]).upper()
     uncurl_data = result_dict["data_token"]
     uncurl_header_json = result_dict["headers_token"]
-    port = uncurl_url.port
 
     header = dump_json_header_to_string(uncurl_header_json)
 
@@ -655,7 +654,7 @@ def hzx_main(url_link):
     print_queue.put("Start fuzzing in a few seconds...")
 
     # get metadata
-    host, port, conf_data = hzx_uncurl(url_link)
+    host, port, conf_data = uncurl_url_link(url_link)
     process_number = 5
     threads_per_process = 10
     is_strong_fuzz = True
@@ -664,11 +663,7 @@ def hzx_main(url_link):
     #  calculate initial request statistics
     try:
         #  parse the request without injection marker
-        parsed = HTTPRequestParser(
-            clean_template(conf_data, check_template(conf_data)[0]))
-        #  perform 10 requests and calculate average statistics
-        statistics = calculate_average_statistics(host, port,
-                                                  parsed, secure)
+        statistics = get_statistics(conf_data, host, port, secure)
         #  if we don't have stats, quit (check hashes)!
         if None in statistics[3]:
             print_queue.put("Unable to retrieve stats :(")
@@ -703,14 +698,24 @@ def hzx_main(url_link):
     return bye()
 
 
+def get_statistics(conf_data, host, port, secure):
+    parsed = HTTPRequestParser(
+        clean_template(conf_data, check_template(conf_data)[0]))
+    #  perform 10 requests and calculate average statistics
+    statistics = calculate_average_statistics(host, port,
+                                              parsed, secure)
+    return statistics
+
+
 if __name__ == "__main__":
     # args = parse_paras()
     # main(args)
     url = """
-         curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
-           -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
-          -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
-          -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
+         curl  http://10.187.2.200:9797/v2.0/vips/33d85b32-c3f8-4488-b8ac-8aebea032430/backends.json 
+         -X POST -H "X-Auth-Token: aa36396857904092b2f1816b8006d24b" 
+         -H "Content-Type: application/json" -H "Accept: application/json"
+          -H "User-Agent: python-protonclient" 
+          -d '{"backend": {"port_id": "95a95519-ea84-4538-a8c3-d1ef4ad42d0c", "vip_id": "33d85b32-c3f8-4488-b8ac-8aebea032430", "weight": "200"}}'
         """
-    # hzx_uncurl(url)
+    # uncurl_url_link(url)
     hzx_main(url)
