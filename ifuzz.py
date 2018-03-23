@@ -606,7 +606,47 @@ def parse_paras():
     return args
 
 
+def dump_json_header_to_string(header_data):
+    decode_json = json.loads(header_data)
+    header_all = ""
+    for key in decode_json:
+        header = key + ": " + decode_json[key] + "\r\n"
+        header_all += header
+
+    return header_all
+
+
 # def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+
+
+
+def hzx_uncurl():
+    result_string, result_dict = uncurl_lib.parse(
+        """
+         curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
+           -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
+          -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
+          -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
+        """
+    )
+    uncurl_url = urlparse(result_dict["url"])
+    uncurl_method = str(result_dict["method"]).upper()
+    uncurl_data = result_dict["data_token"]
+
+    uncurl_header_json = result_dict["headers_token"]
+    header = dump_json_header_to_string(uncurl_header_json)
+
+    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n' \
+               '{header}\r\n\r\n***{inject_data}***'. \
+        format(method=uncurl_method,
+               path=uncurl_url.path,
+               host=uncurl_url.hostname,
+               header=header,
+               inject_data=uncurl_data)
+
+    return data_str
+
+
 def hzx_main():
     """
     Main routine do the hard job
@@ -631,7 +671,7 @@ def hzx_main():
     conf_data = hzx_uncurl()
 
     secure = False
-    statistics = [['200'], 0.0007, 12, ['2cd1738195b962cb0d8789bfa77b21a0']]
+    statistics = []
 
     #  start processes and return a process pool
     host = '10.187.3.190'
@@ -670,37 +710,8 @@ def hzx_main():
     return bye()
 
 
-def hzx_uncurl():
-    result_string, result_dict = uncurl_lib.parse(
-        """
-         curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
-           -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
-          -H  "X-Auth-Token: 4bbddcd5ab86429c9ca0d24839db71ba" 
-          -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
-        """
-    )
-    url = urlparse(result_dict["url"])
-
-    header_data = result_dict["headers_token"]
-    header_data = string.replace(header_data, '"', '')
-    header_data = string.replace(header_data, '{', '')
-    header_data = string.replace(header_data, '}', '')
-    header_data = string.replace(header_data, ', ', '\r\n')
-
-    data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n' \
-               '{header}\r\n\r\n***{inject_data}***'. \
-        format(method=str(result_dict["method"]).upper(),
-               path=url.path,
-               host=url.hostname,
-               header=header_data,
-               inject_data=result_dict["data_token"])
-
-    print data_str
-    return data_str
-
-
 if __name__ == "__main__":
     # args = parse_paras()
     # main(args)
-    # hzx_uncurl()
+    hzx_uncurl()
     hzx_main()
