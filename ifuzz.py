@@ -709,15 +709,17 @@ def hzx_main(url_link):
 
 def hzx_argu_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("url", nargs='+',
+    parser.add_argument("url", nargs='*',
                         help="input url")
 
     args = parser.parse_args()
+
     return args
 
 if __name__ == "__main__":
     args = hzx_argu_parser()
     url = args.url
+    print " ".join(url)
     # main(args)
     # url = """
     #      curl  http://10.187.2.200:9797/v2.0/vips/33d85b32-c3f8-4488-b8ac-8aebea032430/backends.json
