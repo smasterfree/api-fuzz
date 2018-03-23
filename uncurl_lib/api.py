@@ -54,9 +54,9 @@ def parse(curl_command):
             quoted_headers[header_key] = header_value.strip()
 
     result_string = """requests.{method}("{url}",
-{data_token}{headers_token},
-{cookies_token},{security_token}
-)""".format(
+                    {data_token}{headers_token},
+                    {cookies_token},{security_token}
+                    )""".format(
         method=method,
         url=parsed_args.url,
         data_token=data_token,
@@ -67,17 +67,14 @@ def parse(curl_command):
         security_token="\n%sverify=False" % base_indent if parsed_args.insecure else ""
     )
 
-    result_dict = {}
-    result_dict["method"] = method
-    result_dict["url"] = parsed_args.url
-    result_dict["data_token"] = data_token
-    result_dict["headers_token"] = "{}".format(dict_to_pretty_string(
-        quoted_headers))
-    result_dict["cookies_token"] = "{}cookies={}".format(base_indent,
-                                                         dict_to_pretty_string(
-                                                             cookie_dict))
-    result_dict[
-        "security_token"] = "\n%sverify=False" % base_indent if parsed_args.insecure else ""
+    result_dict = {"method": method, "url": parsed_args.url,
+                   "data_token": data_token,
+                   "headers_token": "{}".format(dict_to_pretty_string(
+                       quoted_headers)),
+                   "cookies_token": "{}cookies={}".format(base_indent,
+                                                          dict_to_pretty_string(
+                                                              cookie_dict)),
+                   "security_token": "\n%sverify=False" % base_indent if parsed_args.insecure else ""}
 
     return result_string, result_dict
 

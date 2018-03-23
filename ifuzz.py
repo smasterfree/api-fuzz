@@ -671,7 +671,7 @@ def hzx_main():
 
 
 def hzx_uncurl():
-    result_string, r_map = uncurl_lib.parse(
+    result_string, result_dict = uncurl_lib.parse(
         """
          curl  'http://10.187.3.190:9800/9ac08939bf67465c88cd638107e0a6d6/az_capacity' -X POST
            -H "X-Auth-Project-IdId: Project_hzluodan" -H "User-Agent: python-novaclient" 
@@ -679,9 +679,9 @@ def hzx_uncurl():
           -d'{ "flavor_id":"2680001", "az_list":["dongguan1.sriov1"], "vm_type":"KVM" ,"net_type":"sriov"}'
         """
     )
-    url = urlparse(r_map["url"])
+    url = urlparse(result_dict["url"])
 
-    header_data = r_map["headers_token"]
+    header_data = result_dict["headers_token"]
     header_data = string.replace(header_data, '"', '')
     header_data = string.replace(header_data, '{', '')
     header_data = string.replace(header_data, '}', '')
@@ -689,11 +689,11 @@ def hzx_uncurl():
 
     data_str = '{method} {path}  HTTP/1.1\r\nHost: {host}\r\n' \
                '{header}\r\n\r\n***{inject_data}***'. \
-                format(method=str(r_map["method"]).upper(),
-                       path=url.path,
-                       host=url.hostname,
-                       header=header_data,
-                       inject_data=r_map["data_token"])
+        format(method=str(result_dict["method"]).upper(),
+               path=url.path,
+               host=url.hostname,
+               header=header_data,
+               inject_data=result_dict["data_token"])
 
     print data_str
     return data_str
