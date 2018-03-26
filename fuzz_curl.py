@@ -112,20 +112,23 @@ def inject_fuzz(url_link):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("url", nargs='+',
-                        help="input url")
+    parser.add_argument("file", nargs='+',
+                        help="input file")
 
     args = parser.parse_args()
 
     return args
 
+
+def get_url_from_file(f):
+    with open(f, 'r') as f:
+        result = f.readlines(1)[0]
+        return result
+
+
 if __name__ == "__main__":
-    url = """
-         curl  http://10.187.2.200:9797/v2.0/vips/33d85b32-c3f8-4488-b8ac-8aebea032430/backends.json
-         -X POST -H "X-Auth-Token: b070b1318a0d4679a2511aff3a04a3f8"
-         -H "Content-Type: application/json" -H "Accept: application/json"
-          -H "User-Agent: python-protonclient"
-          -d '{"backend": {"port_id": "95a95519-ea84-4538-a8c3-d1ef4ad42d0c", "vip_id": "33d85b32-c3f8-4488-b8ac-8aebea032430", "weight": "200"}}'
-        """
-    # uncurl_url_link(url)
+    args = arg_parser()
+
+    # args.file is a list of filenames, not one filename. we need the first!
+    url = get_url_from_file(args.file[0])
     inject_fuzz(url)

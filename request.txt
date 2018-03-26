@@ -1,7 +1,1 @@
-POST /9ac08939bf67465c88cd638107e0a6d6/az_capacity HTTP/1.1
-Host: 10.187.3.190
-X-Auth-Token: 809692b16cc840878e276d8634d899da
-Content-Type: application/json
-Accept: application/json
-
-***{"az_list": ["dongguan1.sriov1"], "net_type": "sriov", "flavor_id": "2680001", "vm_type": "KVM"}***
+curl  'http://10.182.2.253:8774/v2/9ac08939bf67465c88cd638107e0a6d6/os-tag-types/11/extra-specs' -X POST -H "X-Auth-Project-Id: admin" -H "Content-Type: application/json" -H "Accept: application/json" -H "X-Auth-Token: d8499072f58f4e01815812974e81ce9d" -d '{"extra_specs": {"host_required": "no", "unique_on_host": "dsadsa"}}'
