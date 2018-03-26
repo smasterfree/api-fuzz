@@ -6,8 +6,9 @@ Python JSON API Fuzzer based on PyJFuzz, PyJFAPI and uncurl
 ## Installation
 
 ```
-git clone git@github.com:smasterfree/api-fuzz.git
+pip install PyJFuzz
 
+git clone git@github.com:smasterfree/api-fuzz.git
 ```
 
 ## How to use
