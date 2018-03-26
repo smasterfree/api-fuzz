@@ -49,7 +49,7 @@ def get_statistics(conf_data, host, port, secure):
     return statistics
 
 
-def hzx_main(url_link):
+def inject_fuzz(url_link):
     """
     Main routine do the hard job
     """
@@ -59,7 +59,7 @@ def hzx_main(url_link):
     pjfapi.print_queue.put("Starting iFuzz...")
 
     # create a Queue used to communicate results
-    # between created processes and main process
+    # between created processes and inject_fuzz process
     process_queue = multiprocessing.Queue(0)
 
     #  let's notify the user that we are starting the real fuzzing now!
@@ -110,7 +110,7 @@ def hzx_main(url_link):
     return pjfapi.bye()
 
 
-def hzx_argu_parser():
+def arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("url", nargs='+',
                         help="input url")
@@ -128,4 +128,4 @@ if __name__ == "__main__":
           -d '{"backend": {"port_id": "95a95519-ea84-4538-a8c3-d1ef4ad42d0c", "vip_id": "33d85b32-c3f8-4488-b8ac-8aebea032430", "weight": "200"}}'
         """
     # uncurl_url_link(url)
-    hzx_main(url)
+    inject_fuzz(url)

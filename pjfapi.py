@@ -32,7 +32,7 @@ SOFTWARE.
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 
-from fuzz_curl import hzx_main
+from fuzz_curl import inject_fuzz
 
 try:
     from pyjfuzz.lib import PJFConfiguration
@@ -478,7 +478,7 @@ def bye():
     time.sleep(1)
 
 
-# def main(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
+# def inject_fuzz(ip, port, data, secure=False, process_num=10, threads_per_process=10, strong_fuzz=False):
 def main(config):
     """
     Main routine do the hard job
@@ -518,7 +518,7 @@ def main(config):
     except KeyboardInterrupt:
         return
 
-    # create a Queue used to communicate results between created processes and main process
+    # create a Queue used to communicate results between created processes and inject_fuzz process
     process_queue = multiprocessing.Queue(0)
 
     #  let's notify the user that we are starting the real fuzzing now!
@@ -604,13 +604,4 @@ def parse_paras():
     return args
 
 
-if __name__ == "__main__":
-    url = """
-         curl  http://10.187.2.200:9797/v2.0/vips/33d85b32-c3f8-4488-b8ac-8aebea032430/backends.json
-         -X POST -H "X-Auth-Token: aa36396857904092b2f1816b8006d24b"
-         -H "Content-Type: application/json" -H "Accept: application/json"
-          -H "User-Agent: python-protonclient"
-          -d '{"backend": {"port_id": "95a95519-ea84-4538-a8c3-d1ef4ad42d0c", "vip_id": "33d85b32-c3f8-4488-b8ac-8aebea032430", "weight": "200"}}'
-        """
-    # uncurl_url_link(url)
-    hzx_main(url)
+
