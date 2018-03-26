@@ -415,7 +415,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                 #  skip to the next element
                 fuzzer_queue.task_done()
                 #  sleep to prevent high CPU usage
-                time.sleep(1)
+                time.sleep(10)
 
     for _ in range(0, max_threads):
         #  start <max_threads> thread which perform the fuzzing job

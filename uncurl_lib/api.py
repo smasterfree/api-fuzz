@@ -6,9 +6,10 @@ import shlex
 
 parser = argparse.ArgumentParser()
 parser.add_argument('command')
-parser.add_argument('url')
+parser.add_argument('url', nargs="?")
 parser.add_argument('-d', '--data')
 parser.add_argument('-b', '--data-binary', default=None)
+parser.add_argument('-i', default=None)
 parser.add_argument('-X', default='')
 parser.add_argument('-H', '--header', action='append', default=[])
 parser.add_argument('--compressed', action='store_true')
@@ -26,6 +27,12 @@ def parse(curl_command):
     if parsed_args.X.lower() == 'post':
         method = 'post'
     post_data = parsed_args.data or parsed_args.data_binary
+
+    if parsed_args.i is not None:
+        final_url = parsed_args.i
+    else:
+        final_url = parsed_args.url
+
     if post_data:
         method = 'post'
         try:
@@ -58,7 +65,7 @@ def parse(curl_command):
                     {cookies_token},{security_token}
                     )""".format(
         method=method,
-        url=parsed_args.url,
+        url=final_url,
         data_token=data_token,
         headers_token="{}".format(dict_to_pretty_string(
             quoted_headers)),
@@ -67,7 +74,7 @@ def parse(curl_command):
         security_token="\n%sverify=False" % base_indent if parsed_args.insecure else ""
     )
 
-    result_dict = {"method": method, "url": parsed_args.url,
+    result_dict = {"method": method, "url": final_url,
                    "data_token": data_token,
                    "headers_token": "{}".format(dict_to_pretty_string(
                        quoted_headers)),
