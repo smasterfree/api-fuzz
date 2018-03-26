@@ -56,7 +56,15 @@ def inject_fuzz(url_link):
 
     #  init the printer thread
     pjfapi.init_printer()
-    pjfapi.print_queue.put("Starting iFuzz...")
+    pjfapi.print_queue.put("""
+                               _____ _____   ______             
+                     /\   |  __ \_   _| |  ____|            
+                    /  \  | |__) || |   | |__ _   _ ________
+                   / /\ \ |  ___/ | |   |  __| | | |_  /_  /
+                  / ____ \| |    _| |_  | |  | |_| |/ / / / 
+                 /_/    \_\_|   |_____| |_|   \__,_/___/___|
+    """)
+    pjfapi.print_queue.put("Starting api Fuzz...")
 
     # create a Queue used to communicate results
     # between created processes and inject_fuzz process
