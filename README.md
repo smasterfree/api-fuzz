@@ -14,3 +14,6 @@ git clone git@github.com:smasterfree/api-fuzz.git
 ## How to use
 
 ![optimized](doc/demo.gif)
+
+
+press ctrl+c to stop the script.
