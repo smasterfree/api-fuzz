@@ -241,7 +241,7 @@ def calculate_average_statistics(ip, port, data, secure=False):
         length.append(l)
         hash.append(h)
         #  sleep to prevent possible API rate limit
-        time.sleep(1.5)
+        time.sleep(0.1)
     # perform the average calculation
     avghttpcode = ["{0}".format(x) for x in list(set(http_code))]
     avgtime = round(sum(map(float, exec_time)) / 10, 4)
@@ -383,7 +383,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                         break
                     else:
                         #  maybe we are going to fast?
-                        time.sleep(2)
+                        time.sleep(0)
                 # process_queue.put(result)
                 #  lock the global stats
                 global_thread_lock.acquire()
@@ -415,7 +415,7 @@ def fuzzer_process(ip, port, data, secure=False, max_threads=10,
                 #  skip to the next element
                 fuzzer_queue.task_done()
                 #  sleep to prevent high CPU usage
-                time.sleep(10)
+                # time.sleep(2)
 
     for _ in range(0, max_threads):
         #  start <max_threads> thread which perform the fuzzing job
@@ -529,7 +529,6 @@ def main(config):
            config.process_num, config.thread_num,
            config.strong_fuzz)
 
-    time.sleep(100)
 
     process_pool = start_processes(config.host, config.port, config.data,
                                    config.secure, process_queue, statistics,
