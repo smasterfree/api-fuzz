@@ -29,7 +29,7 @@ press ctrl+c to stop the script.
 
  
 
-# ![Alt pic](images/2013c8a6-c7a0-47d3-9fec-a14955bdf2b6) api 接口 fuzz 测试初探  
+# ![Alt pic](images/2013c8a6-c7a0-47d3-9fec-a14955bdf2b6.png) api 接口 fuzz 测试初探  
 
 ## 目标
 
@@ -217,7 +217,7 @@ java.lang.ArrayIndexOutOfBoundsException: 1
 pjfapi.py 脚本本身使用方法很简单。 -h 看下help为命令行参数的基本说明。
 
 
- ![Alt pic](images/cdd96ba4-941a-4720-8286-9030ae368355) 
+ ![Alt pic](images/cdd96ba4-941a-4720-8286-9030ae368355.png) 
 
 ## 结论
 
@@ -282,7 +282,7 @@ python pjfapi.py -H pubbeta1-iaas.service.163.org -P 9797 -T request.txt
 
 curl请求是最容易得到的，比如chrome，postman里面可以自动导出，openstack client加上 `--debug`参数可以直接得到等等。
 
- ![Alt pic](images/6ab21417-693c-44eb-aaed-87820effc14f) 
+ ![Alt pic](images/6ab21417-693c-44eb-aaed-87820effc14f.png) 
 
 于是我稍微改造了一下，自动根据curl请求构建出pjfapi 的schema。
 
