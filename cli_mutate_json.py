@@ -1,10 +1,8 @@
+from pyjfuzz.core.pjf_server import PJFServer
 from pyjfuzz.lib import PJFConfiguration
 from pyjfuzz.lib import PJFFactory
 from argparse import Namespace
-
 import urllib
-
-import time
 import json
 
 from pjfapi import check_template
@@ -27,6 +25,5 @@ if __name__ == '__main__':
     # init the object factory used to fuzz (see documentation)
     factory = PJFFactory(config)
 
-    while True:
+    for i in range(1, 100):
         print factory.fuzzed
-        time.sleep(1)
