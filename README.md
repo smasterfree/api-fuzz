@@ -333,6 +333,36 @@ python fuzz_curl.py request.txt
 
 ```
 
+日志中错误展示
+```
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     return resp(environ, start_response)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/webob/dec.py", line 144, in __call__
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     return resp(environ, start_response)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/routes/middleware.py", line 141, in _
+_call__
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     response = self.app(environ, start_response)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/webob/dec.py", line 144, in __call__
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     return resp(environ, start_response)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/webob/dec.py", line 130, in __call__
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     resp = self.call_func(req, *args, **self.kwargs)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/webob/dec.py", line 195, in call_func
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     return self.func(req, *args, **kwargs)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/nova/api/openstack/wsgi.py", line 917
+, in __call__
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     content_type, body, accept)
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack   File "/srv/stack/nova/lib/python2.7/site-packages/nova/api/openstack/wsgi.py", line 939
+, in _process_stack
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack     'body': unicode(body, 'utf-8')}
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack UnicodeDecodeError: 'utf8' codec can't decode byte 0xf8 in position 11: invalid start byt
+e
+2020-02-06 17:08:51.104 853675 TRACE nova.api.openstack
+2020-02-06 17:08:51.105 853675 INFO nova.api.openstack [req-57f429fe-7e2d-4b72-98ac-666fe8e78105 df8c9cdd6a4d40dfa44ada75f288da78 9ac08939bf67465
+c88cd638107e0a6d6 admin admin] http://10.187.3.58:8774/v2/9ac08939bf67465c88cd638107e0a6d6/os-tag-types/11/extra-specs returned with HTTP 500
+2020-02-06 17:08:51.105 853675 DEBUG nova.openstack.common.rpc.amqp [req-57f429fe-7e2d-4b72-98ac-666fe8e78105 df8c9cdd6a4d40dfa44ada75f288da78 9a
+c08939bf67465c88cd638107e0a6d6 admin admin] Sending api.fault on notifications.error notify /srv/stack/nova/lib/python2.7/site-packages/nova/open
+stack/common/rpc/amqp.py:625
+```
+
 
 需要关注 500 错误的 Payload即可。
 
