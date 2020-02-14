@@ -1,13 +1,11 @@
-import string
-
 import uncurl_lib
 import requests
 from pyjfuzz.lib import PJFConfiguration
 from pyjfuzz.lib import PJFFactory
 from argparse import Namespace
 import json
-import random
-import argparse
+
+from misc.utils import random_header
 
 
 def get_mutated_json(json_string):
@@ -31,30 +29,6 @@ def make_request(method, url, header, data):
     return req.status_code
 
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-
-def random_header(order_dict):
-    action = random.choice([1, 2, 3])
-
-    # random remove one header
-    if action == 1:
-        order_dict.pop(random.choice(uncurl_header.keys()))
-        d = order_dict
-
-    # random add one
-    elif action == 2:
-        d = dict(order_dict)
-        d[id_generator(20)] = id_generator(20)
-
-    # do nothing
-    elif action == 3:
-        d = order_dict
-
-    return d
-
-
 if __name__ == '__main__':
     context = uncurl_lib.parse_context(
         '''
@@ -70,12 +44,12 @@ if __name__ == '__main__':
     new_header = random_header(uncurl_header)
 
     print new_header
-    # for i in range(1, 100):
-    # fuzzed_json = get_mutated_json(str(uncurl_data))
-    #
-    # res_code = make_request(method=uncurl_method,
-    #                         url=uncurl_url,
-    #                         header=new_header,
-    #                         data=fuzzed_json,
-    #                         )
-    # print str(res_code) + "\t" + fuzzed_json
+    for i in range(1, 100):
+        fuzzed_json = get_mutated_json(str(uncurl_data))
+
+        res_code = make_request(method=uncurl_method,
+                                url=uncurl_url,
+                                header=new_header,
+                                data=fuzzed_json,
+                                )
+        print str(res_code) + "\t" + fuzzed_json
