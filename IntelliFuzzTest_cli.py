@@ -1,3 +1,5 @@
+import argparse
+
 import uncurl_lib
 import requests
 from pyjfuzz.lib import PJFConfiguration
@@ -6,6 +8,22 @@ from argparse import Namespace
 import json
 
 from misc.utils import random_header
+
+
+def arg_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", nargs='+',
+                        help="input file")
+
+    args = parser.parse_args()
+
+    return args
+
+
+def get_url_from_file(f):
+    with open(f, 'r') as f:
+        result = f.readlines(1)[0]
+        return result
 
 
 def get_mutated_json(json_string):
@@ -30,16 +48,15 @@ def make_request(method, url, header, data):
 
 
 if __name__ == '__main__':
-    context = uncurl_lib.parse_context(
-        '''
-        curl  'http://10.187.3.58:8774/v2/9ac08939bf67465c88cd638107e0a6d6/os-tag-types/11/extra-specs' -X POST -H "X-Auth-Project-Id: admin" -H "Content-Type: application/json" -H "Accept: application/json" -H "X-Auth-Token: 318a94c85ec840f9be71bad2af8b309b" -d '{"extra_specs": {"host_required": "no", "unique_on_host": "dsadsa"}}' 
-        ''')
+    args = arg_parser()
+    # args.file is a list of filenames, we need the first element!
+    url = get_url_from_file(args.file[0])
+    context = uncurl_lib.parse_context(url)
 
     uncurl_url = context.url
     uncurl_method = context.method
     uncurl_data = context.data
     uncurl_header = context.headers
-    print uncurl_header
 
     new_header = random_header(uncurl_header)
 

@@ -1,7 +1,6 @@
 import random
 import string
 
-from IntelliFuzzTest_cli import uncurl_header
 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -13,7 +12,7 @@ def random_header(order_dict):
 
     # random remove one header
     if action == 1:
-        order_dict.pop(random.choice(uncurl_header.keys()))
+        order_dict.pop(random.choice(order_dict.keys()))
         d = order_dict
 
     # random add one
