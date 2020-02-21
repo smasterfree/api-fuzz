@@ -75,7 +75,8 @@ if __name__ == '__main__':
                                         data=uncurl_data,
                                         )
                 print "status code:" + str(res_code) + "\tnew_url:" + \
-                      "\t" + new_url
+                      "\t" + new_url + "\theader:\t " + \
+                      new_header
 
             # post or put, fuzz post body
             elif uncurl_method == "put" or uncurl_method == "post":
