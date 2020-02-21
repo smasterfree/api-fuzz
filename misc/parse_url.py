@@ -20,7 +20,8 @@ def fuzz_url_path(url):
                 path_elem[i] = id_generator()
 
     new_path = '/'.join(path_elem)
-    return new_path
+    new_url = r.scheme + "://" + r.netloc + new_path
+    return new_url
 
 
 if __name__ == '__main__':
