@@ -74,7 +74,7 @@ if __name__ == '__main__':
                                         header=new_header,
                                         data=uncurl_data,
                                         )
-                print "status code:" + str(res_code) + "new_url:" + \
+                print "status code:" + str(res_code) + "\tnew_url:" + \
                       "\t" + new_url
 
             # post or put, fuzz post body
@@ -86,7 +86,7 @@ if __name__ == '__main__':
                                         header=new_header,
                                         data=fuzzed_json,
                                         )
-                print "status code:" + str(res_code) + "payload:" + \
+                print "status code:" + str(res_code) + "\tpayload:" + \
                       "\t" + fuzzed_json
 
             else:
