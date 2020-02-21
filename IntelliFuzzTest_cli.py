@@ -1,6 +1,4 @@
 import argparse
-import urlparse
-
 import uncurl_lib
 import requests
 from pyjfuzz.lib import PJFConfiguration

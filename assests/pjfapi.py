@@ -32,8 +32,6 @@ SOFTWARE.
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 
-from fuzz_curl import inject_fuzz
-
 try:
     from pyjfuzz.lib import PJFConfiguration
     from pyjfuzz.lib import PJFFactory
