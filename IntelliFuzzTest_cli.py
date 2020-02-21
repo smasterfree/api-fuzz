@@ -1,4 +1,5 @@
 import argparse
+import urlparse
 
 import uncurl_lib
 import requests
@@ -6,6 +7,7 @@ from pyjfuzz.lib import PJFConfiguration
 from pyjfuzz.lib import PJFFactory
 from argparse import Namespace
 import json
+
 
 from misc.utils import random_header
 
@@ -54,6 +56,9 @@ if __name__ == '__main__':
     context = uncurl_lib.parse_context(url)
 
     uncurl_url = context.url
+    r = urlparse.urlparse(uncurl_url)
+    print r.path
+
     uncurl_method = context.method
     uncurl_data = context.data
     uncurl_header = context.headers
@@ -69,4 +74,5 @@ if __name__ == '__main__':
                                 header=new_header,
                                 data=fuzzed_json,
                                 )
-        print str(res_code) + "\t" + fuzzed_json
+        print "status code:" + str(res_code) + "payload:" + \
+              "\t" + fuzzed_json
