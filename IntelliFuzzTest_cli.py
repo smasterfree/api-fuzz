@@ -67,12 +67,19 @@ if __name__ == '__main__':
         try:
             # get or delete, fuzz url
             if uncurl_method == "get" or uncurl_method == "delete":
+
+                # will someone put req boby with GET/DELETE method ?
+                if uncurl_data is None:
+                    fuzzed_json = uncurl_data
+                else:
+                    fuzzed_json = get_mutated_json(str(uncurl_data))
+
                 new_url = fuzz_url_path(uncurl_url)
 
                 res_code = make_request(method=uncurl_method,
                                         url=new_url,
                                         header=new_header,
-                                        data=uncurl_data,
+                                        data=fuzzed_json,
                                         )
                 print "status code:" + str(res_code) + "\tnew_url:" + \
                       "\t" + new_url
@@ -90,6 +97,7 @@ if __name__ == '__main__':
                       "\t" + fuzzed_json
 
             else:
-                print "This should never happen!!"
+                print "Wrong request method ! Only PUT/GET/POST/DELETE " \
+                      "supported!"
         except:
             pass
