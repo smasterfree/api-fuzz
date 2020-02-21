@@ -8,7 +8,7 @@ from pyjfuzz.lib import PJFFactory
 from argparse import Namespace
 import json
 
-
+from misc.parse_url import fuzz_url_path
 from misc.utils import random_header
 
 
@@ -56,8 +56,6 @@ if __name__ == '__main__':
     context = uncurl_lib.parse_context(url)
 
     uncurl_url = context.url
-    r = urlparse.urlparse(uncurl_url)
-    print r.path
 
     uncurl_method = context.method
     uncurl_data = context.data
@@ -65,8 +63,18 @@ if __name__ == '__main__':
 
     new_header = random_header(uncurl_header)
 
-    print new_header
-    for i in range(1, 100):
+    # get or delete, fuzz url
+    if uncurl_method == "get" or uncurl_method == "delete":
+        new_url = fuzz_url_path(uncurl_url)
+
+        res_code = make_request(method=uncurl_method,
+                                url=new_url,
+                                header=new_header,
+                                data=uncurl_data,
+                                )
+
+    # post or put, fuzz post body
+    elif uncurl_method == "put" or uncurl_method == "post":
         fuzzed_json = get_mutated_json(str(uncurl_data))
 
         res_code = make_request(method=uncurl_method,
@@ -76,3 +84,6 @@ if __name__ == '__main__':
                                 )
         print "status code:" + str(res_code) + "payload:" + \
               "\t" + fuzzed_json
+
+    else:
+        print "This should never happen!!"
