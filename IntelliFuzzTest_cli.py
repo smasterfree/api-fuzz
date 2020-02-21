@@ -63,27 +63,33 @@ if __name__ == '__main__':
 
     new_header = random_header(uncurl_header)
 
-    # get or delete, fuzz url
-    if uncurl_method == "get" or uncurl_method == "delete":
-        new_url = fuzz_url_path(uncurl_url)
+    for i in range(100):
+        try:
+            # get or delete, fuzz url
+            if uncurl_method == "get" or uncurl_method == "delete":
+                new_url = fuzz_url_path(uncurl_url)
 
-        res_code = make_request(method=uncurl_method,
-                                url=new_url,
-                                header=new_header,
-                                data=uncurl_data,
-                                )
+                res_code = make_request(method=uncurl_method,
+                                        url=new_url,
+                                        header=new_header,
+                                        data=uncurl_data,
+                                        )
+                print "status code:" + str(res_code) + "new_url:" + \
+                      "\t" + new_url
 
-    # post or put, fuzz post body
-    elif uncurl_method == "put" or uncurl_method == "post":
-        fuzzed_json = get_mutated_json(str(uncurl_data))
+            # post or put, fuzz post body
+            elif uncurl_method == "put" or uncurl_method == "post":
+                fuzzed_json = get_mutated_json(str(uncurl_data))
 
-        res_code = make_request(method=uncurl_method,
-                                url=uncurl_url,
-                                header=new_header,
-                                data=fuzzed_json,
-                                )
-        print "status code:" + str(res_code) + "payload:" + \
-              "\t" + fuzzed_json
+                res_code = make_request(method=uncurl_method,
+                                        url=uncurl_url,
+                                        header=new_header,
+                                        data=fuzzed_json,
+                                        )
+                print "status code:" + str(res_code) + "payload:" + \
+                      "\t" + fuzzed_json
 
-    else:
-        print "This should never happen!!"
+            else:
+                print "This should never happen!!"
+        except:
+            pass
