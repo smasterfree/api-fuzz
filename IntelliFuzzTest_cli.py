@@ -87,9 +87,8 @@ if __name__ == '__main__':
                                         header=new_header,
                                         data=fuzzed_json,
                                         )
-                print "status code:" + str(res_code) + "\theader:\t " + \
-                      new_header + "\tpayload:" + "\t" + fuzzed_json
-
+                print "status code:" + str(res_code) + "\tpayload:" + \
+                      "\t" + fuzzed_json
 
             else:
                 print "This should never happen!!"
