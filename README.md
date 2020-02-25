@@ -16,6 +16,14 @@ pip install -r requirements.txt
 python IntelliFuzzTest_cli.py request.txt
 ```
 
+## 特点
+
+1. 支持请求body体变异
+2. 支持请求url path 变异
+3. 随机增删请求header
+4. 支持post/get/delete/put方法
+5. 可以直接根据curl命令进行变异
+
 ## 背景
 
 在日常测试工作中，经常会有api接口的测试，除了正向流程的测试之外，我们经常还需要覆盖一些异常情况。
