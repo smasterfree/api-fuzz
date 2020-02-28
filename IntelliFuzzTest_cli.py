@@ -5,6 +5,7 @@ from pyjfuzz.lib import PJFConfiguration
 from pyjfuzz.lib import PJFFactory
 from argparse import Namespace
 import json
+import re
 
 from misc.parse_url import fuzz_url_path
 from misc.utils import random_header
@@ -23,7 +24,12 @@ def arg_parser():
 def get_url_from_file(f):
     with open(f, 'r') as f:
         result = f.readlines(1)[0]
-        return result
+
+        if re.findall(r"-i", result):
+            d_result = re.sub(r"-i", "", result)
+            return d_result
+        else:
+            return result
 
 
 def get_mutated_json(json_string):
