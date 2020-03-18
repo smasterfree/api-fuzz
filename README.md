@@ -132,6 +132,8 @@ python IntelliFuzzTest_cli.py request.txt
 
 ![image-20200318140312870](images/image-20200318140312870.png)
 
+变异类型众多，再次不再赘述。
+
 ## demo
 
 目前 IntelliFuzzTest  工具支持get/post /put/delete等类型的请求响应。
@@ -209,3 +211,5 @@ GET类型请求可以对url path进行模糊注入。
 ![image-20200221104527575](images/image-20200221104527575.png)
 
 另外，还支持对请求的header进行随机增删，模拟请求等。
+
+请戳 https://g.hz.netease.com/CloudQA/api-fuzz  进行试用。
