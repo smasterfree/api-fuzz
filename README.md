@@ -73,9 +73,9 @@ python IntelliFuzzTest_cli.py request.txt
 ## 原理
 
 
-主要使用了模糊测试技术（fuzz testing, fuzzing）。其核心思想是自动或半自动的生成随机数据输入到一个程序中，并监视程序异常，如崩溃，断言(assertion)失败，以发现可能的程序错误，比如内存泄漏。（摘抄之维基百科）
+主要使用了模糊测试技术（fuzz testing, fuzzing）。其核心思想是自动或半自动的生成随机数据输入到一个程序中，并监视程序异常，如崩溃，断言(assertion)失败，以发现可能的程序错误，比如内存泄漏。
 
-简单的模糊测试随机输入数据，而更加高效的模糊测试，需要理解对象结构或者协议。通过向数据内容，结构，消息，序列中引入一些异常，来人为的构造聪明的模糊测试。
+简单的模糊测试随机输入数据，而更加高效的模糊测试，需要理解对象**结构**或者**协议**。通过向数据内容，结构，消息，序列中引入一些异常，来人为的构造聪明的模糊测试。
 
 
 如果你持续关注文件系统或内核技术，你一定注意过这样一篇文章：Fuzzing filesystem with AFL。Vegard Nossum 和 Quentin Casasnovas 在 2016 年将用户态的 Fuzzing 工具 AFL（American Fuzzing Lop）迁移到内核态，并针对文件系统进行了测试。
@@ -83,6 +83,54 @@ python IntelliFuzzTest_cli.py request.txt
 结果是相当惊人的。Btrfs，作为 SLES（SUSE Linux Enterprise Server）的默认文件系统，仅在测试中坚持了 5 秒钟就挂了。而 ext4 坚持时间最长，但也仅有 2 个小时而已。(https://zhuanlan.zhihu.com/p/28828826)
 
 所以基于此，在api接口测试中引入模糊测试理论上也是可行的，而且是有效的。
+
+### 导出curl命令
+
+我们选择curl命令作为我们程序的输入。为什么选择curl命令呢，因为许多工具支持导出到curl。例如，openstack k8s的cli client都支持导出到curl
+
+```
+ nova --debug rename e9211f78-d01e-4fc7-ab85-0ae5ccb80c6a aaaa
+
+ kubectl --v=9  get pod  nginx-6c6dfb7d8d-2rb7z  -o yaml
+```
+
+此外，类似chrome以及postman等工具也支持导出到curl
+
+![image-20200318135821312](images/image-20200318135821312.png)
+
+![image-20200318135824794](images/image-20200318135824794.png)
+
+### 解析curl请求
+
+对于一个curl请求，我们可以将其分解为几部分
+
+![image-20200318134418433](images/image-20200318134418433.png)
+
+可以看到，一个curl请求主要包括
+
+- Request method ： 通常包括 POST、GET、 DELETE 、PUT等方法，黄色部分。
+
+- Url path ： 白色部分。
+
+- Header：红色部分。
+
+- Body：绿色部分。通常是POST/PUT 类型请求中包含。
+
+### 变异
+
+通过以下流程，分别变异URL path，随机增删header，body体json变异等。然后将变异后的参数进行拼装成一个request请求。
+
+![image-20200318134440476](images/image-20200318134440476.png)
+
+对于header体，解析到一个OrderDict，进行随机增删。
+
+![image-20200318140112429](images/image-20200318140112429.png)
+
+对于body，随机变异json体。
+
+![image-20200318140226022](images/image-20200318140226022.png)
+
+![image-20200318140312870](images/image-20200318140312870.png)
 
 ## demo
 
@@ -156,7 +204,7 @@ java.lang.ArrayIndexOutOfBoundsException: 1
 {"network": {"cidr": "20.-25500.0.0/16", "name": "hzx-vpc-test1", "admin_stateeeeeeeeeeeeeeeeeeeee_up": true}}
 ```
 
-get类型请求可以对url path进行模糊注入。
+GET类型请求可以对url path进行模糊注入。
 
 ![image-20200221104527575](images/image-20200221104527575.png)
 
