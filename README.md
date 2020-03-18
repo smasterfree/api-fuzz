@@ -132,7 +132,7 @@ python IntelliFuzzTest_cli.py request.txt
 
 ![image-20200318140312870](images/image-20200318140312870.png)
 
-变异类型众多，再次不再赘述。
+变异类型众多，在此不再赘述。
 
 ## demo
 
