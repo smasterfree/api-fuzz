@@ -4,7 +4,7 @@
 ## 安装
 
 ```
-git clone ssh://git@g.hz.netease.com:22222/CloudQA/api-fuzz.git
+git clone https://github.com/smasterfree/api-fuzz.git
 pip install -r requirements.txt
 ```
 
@@ -212,4 +212,3 @@ GET类型请求可以对url path进行模糊注入。
 
 另外，还支持对请求的header进行随机增删，模拟请求等。
 
-请戳 https://g.hz.netease.com/CloudQA/api-fuzz  进行试用。
